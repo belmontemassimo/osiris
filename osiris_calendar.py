@@ -145,16 +145,21 @@ def availability(start_date_str:str, end_date_str:str, work_end_str='20:00:00', 
     if type(occupied_slots) != list:
         return None
     
-    
-    current_date = datetime.datetime.today().date()
-    end_date = datetime.datetime.strptime(end_date_str, "%d/%m/%Y %H:%M:%S").date()
+    # Transform current date and end date to datetime object
+    try:
+        current_date = datetime.datetime.today().date()
+        end_date = datetime.datetime.strptime(end_date_str, "%d/%m/%Y %H:%M:%S").date()
 
+    except ValueError:
+        return None
+    
+    # Set boundaries for work time
     work_start_time = datetime.datetime.strptime(work_start_str, "%H:%M:%S").time()
     work_end_time = datetime.datetime.strptime(work_end_str, "%H:%M:%S").time()
 
     available_slots = []
 
-    while current_date <= end_date:
+    while current_date < end_date:
 
         work_start = datetime.datetime.combine(current_date, work_start_time)
         work_end = datetime.datetime.combine(current_date, work_end_time)
@@ -165,11 +170,29 @@ def availability(start_date_str:str, end_date_str:str, work_end_str='20:00:00', 
             event_start = datetime.datetime.strptime(event_str[1], "%d/%m/%Y %H:%M:%S")
             event_end = datetime.datetime.strptime(event_str[2], "%d/%m/%Y %H:%M:%S")
             for slot in inactive_instants:
+                # Case 1: event fits completely in slot, slot is than divided in 2, leaving event size gap
                 if event_start >= slot[0] and event_end <= slot[1]:
                     index = inactive_instants.index(slot)
                     inactive_instants.pop(index)
                     inactive_instants.insert(index,(slot[0],event_start))
                     inactive_instants.insert(index+1,(event_end,slot[1]))
+
+                # Case 2: event starts before slots and end during slot, change slot to start at end of event
+                elif event_start <= slot[0] and event_end > slot[0] and event_end < slot[1]:
+                    index = inactive_instants.index(slot)
+                    inactive_instants.pop(index)
+                    inactive_instants.insert(index, (event_end, slot[1]))
+                
+                # Case 3: event starts after slot start and end after end of slot, change slot to end at start of event
+                elif event_start > slot[0] and event_start < slot[1] and event_end >= slot[1]:
+                    index = inactive_instants.index(slot)
+                    inactive_instants.pop(index)
+                    inactive_instants.insert(index, (slot[0], event_start))
+
+                # Case 4: event starts before and ends after slor, remove slot
+                elif event_start <= slot[0] and event_end >= slot[1]:
+                    inactive_instants.remove(slot)
+
         
         inactive_instants_str = []
         for slot in inactive_instants:
@@ -194,7 +217,7 @@ if __name__ == '__main__':
     # Make sure the date format matches what AppleScript expects.
     # For example: "January 1, 2022 00:00:00" might work on many systems.
     start_date_str = datetime.date.strftime(datetime.date.today(),"%d/%m/%Y %H:%M:%S")
-    end_date_str = datetime.date.strftime(datetime.date.today() + datetime.timedelta(days=7), "%d/%m/%Y %H:%M:%S")
+    end_date_str = datetime.date.strftime(datetime.date.today() + datetime.timedelta(days=1), "%d/%m/%Y %H:%M:%S")
 
     # inc_week = get_calendar_events(start_date_str,end_date_str)
     # for event in inc_week:
