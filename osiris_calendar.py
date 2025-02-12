@@ -217,7 +217,7 @@ if __name__ == '__main__':
     # Make sure the date format matches what AppleScript expects.
     # For example: "January 1, 2022 00:00:00" might work on many systems.
     start_date_str = datetime.date.strftime(datetime.date.today(),"%d/%m/%Y %H:%M:%S")
-    end_date_str = datetime.date.strftime(datetime.date.today() + datetime.timedelta(days=1), "%d/%m/%Y %H:%M:%S")
+    end_date_str = datetime.date.strftime(datetime.date.today() + datetime.timedelta(days=7), "%d/%m/%Y %H:%M:%S")
 
     # inc_week = get_calendar_events(start_date_str,end_date_str)
     # for event in inc_week:
