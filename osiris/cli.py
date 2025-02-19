@@ -5,9 +5,7 @@ import os
 
 # Ensure the script can find the todo module
 sys.path.insert(0, os.path.dirname(__file__))
-
-from osiris.todo import Task
-
+from todo import Task
 def add_task():
     Task.addTask()
     print("Task added successfully.")
