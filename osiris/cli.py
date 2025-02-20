@@ -2,20 +2,27 @@
 
 import sys
 import os
-import datetime
-import weather_data
+from datetime import datetime, time
+
 
 
 # Ensure the script can find the todo module
 sys.path.insert(0, os.path.dirname(__file__))
 from todo import Task
+import weather_data
+import osiris_cal
 
 def osiris():
-    print("Hello Massimo,")
+    print("Hello Massimo,\n")
+    today_weather()
+    Task.dayTasks()
+    
+def tomorrow_tasks():
+    Task.dayTasks(days=1)
     
 def today_weather():
     temp, weather = weather_data.get_today_weather()
-    print(f"Temperature: {temp}°C, Weather:")
+    print(f"Temperature: \033[1m{temp}°C\033[0m, Weather: \033[1m{weather}\033[0m")
 
 def add_task():
     Task.addTask()
@@ -30,6 +37,9 @@ def place_tasks():
     Task.tasksInCal(tasks)
     print('tasks placed in calendar successfully')
 
+def list_today_tasks():
+    Task.dayTasks()
+
 def remove_task():
     tasks = Task.initTasks()
     for task in tasks:
@@ -43,12 +53,14 @@ def remove_task():
 commands = {
     "gm" : osiris,
 
+    "tt": list_today_tasks,
     "at": add_task,
     "rt": remove_task,
     "lt": list_tasks,
     "pt": place_tasks,
+    "tmt": tomorrow_tasks,
 
-    "tw": today_weather
+    'tw': today_weather
 }
 
 def main():

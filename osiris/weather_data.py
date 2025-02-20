@@ -1,30 +1,22 @@
 import requests
 import json
-from urllib.request import urlopen
-from urllib.error import HTTPError
+from geopy.geocoders import Nominatim
 from datetime import datetime, timezone
 import time
 
-
 def get_coords():
-    for i in range (5):
-        try:
-            url = 'http://ipinfo.io/json?token=0b62e80768fe36'
-            response = urlopen(url)
-            data = json.load(response)
-            coords = data['loc'].split(',')
-            return coords[0],coords[1]
-        
-        except HTTPError as e:
-            wait_time = 2 ** i  # Exponential backoff
-            print(f"Rate limited. Retrying in {wait_time} seconds...")
-            time.sleep(wait_time)
-
-        except Exception:
-            print('coords not reachable')
-            return None
-        
-
+    # calling the Nominatim tool
+    loc = Nominatim(user_agent="GetLoc")
+    
+    # entering the location name
+    getLoc = loc.geocode("Exeter")
+    
+    # printing address
+    print(getLoc.address)
+    
+    # printing latitude and longitude
+    return getLoc.latitude, getLoc.longitude
+            
 def get_today_weather():
 
     forecast_data = get_weather_data()
@@ -33,9 +25,6 @@ def get_today_weather():
     weather = forecast_data['weather'][0]['main']    
     
     return avg_temp, weather
-
-
-
 
 def get_weather_data(key = 'e4c65e61c4cb0bd79ccacb75d34e5efa'):
     try:
@@ -49,7 +38,6 @@ def get_weather_data(key = 'e4c65e61c4cb0bd79ccacb75d34e5efa'):
     
     except Exception:
         return None
-
 
 def get_current_temp(key = 'e4c65e61c4cb0bd79ccacb75d34e5efa'):
     coords = get_coords()
@@ -92,11 +80,3 @@ if __name__ == '__main__':
     print()
     temp, weather = get_today_weather()
     print(temp, weather)
-
-    
-    forecast = incoming_7_forecast()
-    for day in forecast:
-        print('\n',day,":")
-        print(f"    Temperature: {forecast[day]['temp']}")
-        print(f"    Weather: {forecast[day]['weather']}")
-

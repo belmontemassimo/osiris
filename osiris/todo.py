@@ -1,6 +1,6 @@
 
 import osiris_cal
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, time
 import csv
 
 class Task:
@@ -166,6 +166,37 @@ class Task:
         with open(csvfile,'w') as file:
             writer = csv.writer(file)
             writer.writerows(rows)
+
+    def dayTasks(days=0):
+        delta = timedelta(days=days)
+
+        tasks = osiris_cal.get_calendar_events(datetime.combine(datetime.today().date()+delta, time(0,0,0)),datetime.combine(datetime.today().date()+delta, time(23,59,59)),calendar="UOE")
+        tasks += osiris_cal.get_calendar_events(datetime.combine(datetime.today().date()+delta, time(0,0,0)),datetime.combine(datetime.today().date()+delta, time(23,59,59)),calendar="osiris")
+        
+        print(f"\n\033[1mList of events on {datetime.strftime(datetime.today() + delta, '%A %-d %B')}:\033[0m\n")        
+        
+        current_time = datetime.now()
+        for task in tasks:
+
+            start_time = task[1]
+            end_time = task[2]
+
+            if end_time < current_time:
+                # print(f"{task[0]}:")
+                # print(f"{start_time} < {end_time} < {current_time}\n")
+                status = '\033[1mexpired\033[0m'
+
+            elif start_time <= current_time and end_time > current_time:
+                # print(f"{task[0]}:")
+                # print(f"\n")
+                status = '\033[1mongoing\033[0m'
+
+            elif start_time > current_time:
+                status = '\033[1mupcoming\033[0m'
+            
+            print(f"{datetime.strftime(task[1],f'%H:%M:%S')} -> {datetime.strftime(task[2],f'%H:%M:%S')}: {status}")
+            print(f"{task[0]}\n")
+
 
 
 if __name__ == '__main__':

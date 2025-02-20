@@ -1,0 +1,8 @@
+LICENSE
+README.md
+setup.py
+osiris.egg-info/PKG-INFO
+osiris.egg-info/SOURCES.txt
+osiris.egg-info/dependency_links.txt
+osiris.egg-info/entry_points.txt
+osiris.egg-info/top_level.txt
